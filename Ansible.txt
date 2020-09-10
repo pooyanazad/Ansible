@@ -1,0 +1,66 @@
+install Ansible on ubuntu18
+---------------------------------------
+sudo su -
+hostnamectl set-hostname master
+hostnamectl set-hostname host1
+hostnamectl set-hostname host2
+exec bash
+---------------------------------------
+adduser ansible
+usermod -aG sudo ansible
+su - ansible
+sudo whoami
+---------------------------------------
+edit sudo vi /etc/hosts
+10.128.0.37	master
+10.128.0.38	host1
+10.128.0.40	host2
+ping host1
+---------------------------------------
+sudo vi /etc/ssh/sshd_config
+PasswordAuthentication yes  >>>> to ssh with password
+sudo service ssh restart
+---------------------------------------
+just to it on master
+ssh-keygen
+ssh-copy-id -i .ssh/id_rsa.pub host1
+ssh-copy-id -i .ssh/id_rsa.pub host2
+---------------------------------------
+just install on master
+sudo apt-add-repository ppa:ansible/ansible
+sudo apt update >> do it on all (just for update)
+sudo apt install ansible -y >>> on master
+----------------------------------------
+sudo vi /etc/ansible/hosts   >>>>>
+
+[servers]
+host1 ansible_host1=10.128.0.38
+host2 ansible_host2=10.128.0.40
+
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+-----------------------------------------
+ansible-inventory --list -y
+-----------------------------------------
+ansible -m ping all
+ansible -m ping host1
+ansible -m ping host1:host2
+ansible -m shell -a 'free -m' host1
+-----------------------------------------
+cd 
+vi test_file
+vi copy_to_remote.yml
+
+
+- hosts: host1
+  tasks:
+  - name: Ansible copy file to remote server
+    copy:
+      src: /home/ansible/test_file
+      dest: /home/ansible
+
+
+ansible-playbook copy_to_remote.yml
+
+ls on host1 :)
